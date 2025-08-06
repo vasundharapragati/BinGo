@@ -4,7 +4,7 @@ Welcome to the official repository for BinGo, a smart waste aggregator platform.
 
 ## 🚀 Live Demo
 
-You can view the live, interactive project website here: **[You will add your live site link here later]**
+You can view the live, interactive project website here: **[I will add my live site link here later]**
 
 ## 💡 About The Project
 
