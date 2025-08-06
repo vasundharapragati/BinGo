@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BinGo - Smart Waste Aggregator</title>
+    <!-- Chosen Palette: Calm Harmony (Light Neutrals, Muted Greens) -->
+    <!-- Application Structure Plan: A single-page, thematic dashboard structure is used to allow for non-linear exploration. A sticky navigation bar provides immediate access to all key sections. The design prioritizes user-driven discovery over a passive, linear presentation. Key sections like 'Impact' and 'Roadmap' are made interactive to engage the user and allow them to drill down into the information most relevant to them. This structure is more effective than a simple slide-by-slide replication because it empowers users to explore the project's value proposition at their own pace, enhancing understanding and retention. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Stakeholder Benefits -> Goal: Compare -> Viz/Method: Interactive Dashboard with Bar Chart (Chart.js) -> Interaction: User clicks buttons to filter data by stakeholder type -> Justification: Allows users to see the specific, tangible benefits for each group, making the impact more personal and understandable.
+        - Report Info: Project Roadmap -> Goal: Show Change Over Time -> Viz/Method: Interactive Timeline (Horizontal Bar Chart via Chart.js) -> Interaction: Hovering over milestones reveals details in tooltips -> Justification: Transforms a static list into a visually engaging and informative timeline, effectively communicating the project's development plan.
+        - Report Info: How It Works -> Goal: Organize/Inform -> Viz/Method: Clickable Step-by-Step Diagram (HTML/CSS/JS) -> Interaction: User clicks a step to see its description -> Justification: Breaks down a process into digestible parts, improving comprehension through active user participation.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #059669; /* emerald-600 */
+        }
+        .active-nav-link {
+            color: #059669;
+            font-weight: 600;
+        }
+        .step-item.active {
+            background-color: #d1fae5; /* emerald-100 */
+            border-color: #10b981; /* emerald-500 */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2 text-2xl font-bold text-emerald-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span>BinGo</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#problem" class="nav-link text-gray-600">The Problem</a>
+                <a href="#solution" class="nav-link text-gray-600">Our Solution</a>
+                <a href="#how-it-works" class="nav-link text-gray-600">How It Works</a>
+                <a href="#impact" class="nav-link text-gray-600">Impact</a>
+                <a href="#roadmap" class="nav-link text-gray-600">Roadmap</a>
+            </div>
+            <a href="#contact" class="hidden md:block bg-emerald-600 text-white px-4 py-2 rounded-md hover:bg-emerald-700 transition">Get Started</a>
+            <button id="mobile-menu-button" class="md:hidden text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden">
+            <a href="#problem" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100">The Problem</a>
+            <a href="#solution" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100">Our Solution</a>
+            <a href="#how-it-works" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100">How It Works</a>
+            <a href="#impact" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100">Impact</a>
+            <a href="#roadmap" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100">Roadmap</a>
+            <a href="#contact" class="block py-2 px-4 text-sm text-emerald-600 font-semibold hover:bg-gray-100">Get Started</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="py-20 md:py-32 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h1 class="text-4xl md:text-6xl font-bold text-gray-800 leading-tight">Revolutionizing Waste, <span class="text-emerald-600">Unlocking Value</span></h1>
+                <p class="mt-4 text-lg md:text-xl text-gray-600 max-w-3xl mx-auto">Your smart waste aggregator for a sustainable future. Transform trash into treasure, effortlessly.</p>
+                <a href="#how-it-works" class="mt-8 inline-block bg-emerald-600 text-white px-8 py-3 rounded-md text-lg font-semibold hover:bg-emerald-700 transition">See How It Works</a>
+            </div>
+        </section>
+
+        <section id="problem" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">The Silent Crisis: Our Unorganized Waste Ecosystem</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">This section highlights the key challenges in the current waste management system that BinGo aims to solve. Explore the cards to understand the inefficiencies we are tackling.</p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h3 class="text-xl font-bold mb-2">Chaos & Inefficiency</h3>
+                        <p class="text-gray-600">Scrap disposal in India is largely unorganized, leading to significant environmental and economic inefficiencies.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h3 class="text-xl font-bold mb-2">Lack of Transparency</h3>
+                        <p class="text-gray-600">"Kabadiwalas" often operate offline, resulting in inconsistent pricing and no clear tracking for waste generators.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h3 class="text-xl font-bold mb-2">Untapped Potential</h3>
+                        <p class="text-gray-600">Industries struggle with managing recyclable waste, missing out on potential revenue and sustainability goals.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow">
+                        <h3 class="text-xl font-bold mb-2">Recycler's Dilemma</h3>
+                        <p class="text-gray-600">Verified and clean scrap is hard to source efficiently, creating a bottleneck for the entire recycling industry.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="solution" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold">Introducing BinGo: Where Waste Meets Innovation</h2>
+                <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Our mission is to digitize the entire scrap collection and recycling process. We provide a single, powerful platform that ensures fairness, transparency, and sustainability by seamlessly connecting all stakeholders in the waste value chain.</p>
+            </div>
+        </section>
+
+        <section id="how-it-works" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">Your Waste Journey, Simplified</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">This section provides an interactive walkthrough of the BinGo process. Click on each step to learn more about how our platform makes recycling simple, transparent, and rewarding.</p>
+                </div>
+                <div class="flex flex-col md:flex-row justify-center items-start gap-8">
+                    <div class="w-full md:w-1/3">
+                        <div id="step-1" class="step-item p-4 border-l-4 border-gray-200 cursor-pointer active">
+                            <h3 class="font-bold text-lg">1. List Your Scrap</h3>
+                        </div>
+                        <div id="step-2" class="step-item p-4 border-l-4 border-gray-200 cursor-pointer mt-4">
+                            <h3 class="font-bold text-lg">2. Smart Pickup Scheduling</h3>
+                        </div>
+                        <div id="step-3" class="step-item p-4 border-l-4 border-gray-200 cursor-pointer mt-4">
+                            <h3 class="font-bold text-lg">3. Dynamic Pricing</h3>
+                        </div>
+                        <div id="step-4" class="step-item p-4 border-l-4 border-gray-200 cursor-pointer mt-4">
+                            <h3 class="font-bold text-lg">4. Track & Transact</h3>
+                        </div>
+                    </div>
+                    <div class="w-full md:w-2/3 bg-white p-8 rounded-lg shadow-md">
+                        <div id="step-content-1" class="step-content">
+                            <h4 class="text-2xl font-bold mb-4">List Your Scrap</h4>
+                            <p class="text-gray-600">Users, whether from households or industries, can easily list their recyclable waste by type (metal, plastic, e-waste, etc.) on our intuitive app and web platform. Just a few taps and your scrap is ready for collection.</p>
+                        </div>
+                        <div id="step-content-2" class="step-content hidden">
+                            <h4 class="text-2xl font-bold mb-4">Smart Pickup Scheduling</h4>
+                            <p class="text-gray-600">Request a pickup at your convenience. Our GPS-based system instantly connects you with the nearest verified collector ("kabadiwala") or recycler, ensuring a prompt and efficient service.</p>
+                        </div>
+                        <div id="step-content-3" class="step-content hidden">
+                            <h4 class="text-2xl font-bold mb-4">Dynamic Pricing</h4>
+                            <p class="text-gray-600">No more guesswork or unfair rates. Get real-time, fair prices based on current market rates, material type, and weight. Transparency is at the core of every transaction.</p>
+                        </div>
+                        <div id="step-content-4" class="step-content hidden">
+                            <h4 class="text-2xl font-bold mb-4">Track & Transact</h4>
+                            <p class="text-gray-600">Monitor your pickup in real-time from the moment it's assigned. Once completed, receive an instant digital receipt and access a complete history of all your transactions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="impact" class="py-16 md:py-24 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">Beyond Waste: The Tangible Impact of BinGo</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">BinGo creates value for everyone in the ecosystem. Use the buttons below to filter the view and see the specific benefits for each stakeholder group. The chart visualizes the positive impact we deliver.</p>
+                </div>
+                <div class="flex justify-center flex-wrap gap-4 mb-8">
+                    <button class="impact-filter-btn bg-emerald-600 text-white px-5 py-2 rounded-md" data-filter="collectors">Waste Collectors</button>
+                    <button class="impact-filter-btn bg-gray-200 text-gray-700 px-5 py-2 rounded-md" data-filter="households">Households & Industries</button>
+                    <button class="impact-filter-btn bg-gray-200 text-gray-700 px-5 py-2 rounded-md" data-filter="recyclers">Recyclers</button>
+                    <button class="impact-filter-btn bg-gray-200 text-gray-700 px-5 py-2 rounded-md" data-filter="authorities">Authorities</button>
+                </div>
+                <div class="flex flex-col lg:flex-row items-center gap-8">
+                    <div id="impact-text-content" class="w-full lg:w-1/2 text-lg text-gray-600">
+                        <h3 class="text-2xl font-bold mb-4 text-gray-800">For Waste Collectors ("Kabadiwalas")</h3>
+                        <p>BinGo empowers them with digital tools, expanding their reach to more customers and ensuring fair, consistent earnings based on transparent pricing. It formalizes their work and increases their income potential.</p>
+                    </div>
+                    <div class="w-full lg:w-1/2">
+                        <div class="chart-container">
+                            <canvas id="impactChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="roadmap" class="py-16 md:py-24">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold">Our Journey Forward: A Strategic Roadmap</h2>
+                    <p class="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">This interactive timeline showcases our development plan. Hover over each milestone to see the specific goals we aim to achieve as we build and launch BinGo, transforming our vision into reality.</p>
+                </div>
+                <div class="chart-container">
+                    <canvas id="roadmapChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-16 md:py-24 bg-emerald-600 text-white">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold">Join the Green Revolution with BinGo!</h2>
+                <p class="mt-4 text-lg max-w-2xl mx-auto">Be a part of the solution. Whether you're a household, a business, or a collector, you can help build a sustainable future. Invest in a cleaner planet. Invest in BinGo.</p>
+                <a href="#" class="mt-8 inline-block bg-white text-emerald-600 px-8 py-3 rounded-md text-lg font-semibold hover:bg-gray-100 transition">Contact Us</a>
+                <div class="mt-8 text-xl space-y-2">
+                    <p class="font-bold text-2xl">Vasundhara Pragati</p>
+                    <p><strong>Phone:</strong> <a href="tel:9315962168" class="hover:underline">9315962168</a></p>
+                    <p><strong>Email:</strong> <a href="mailto:vasundharapragati30@gmail.com" class="hover:underline">vasundharapragati30@gmail.com</a></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 BinGo. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Mobile Menu
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Active Nav Link on Scroll
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            window.onscroll = () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 60) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active-nav-link');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active-nav-link');
+                    }
+                });
+            };
+
+            // How It Works Interactive Section
+            const stepItems = document.querySelectorAll('.step-item');
+            const stepContents = document.querySelectorAll('.step-content');
+            stepItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const stepId = item.id;
+                    const contentId = `step-content-${stepId.split('-')[1]}`;
+
+                    stepItems.forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+
+                    stepContents.forEach(content => content.classList.add('hidden'));
+                    document.getElementById(contentId).classList.remove('hidden');
+                });
+            });
+            
+            // Impact Chart
+            const impactData = {
+                collectors: {
+                    title: 'For Waste Collectors ("Kabadiwalas")',
+                    description: 'BinGo empowers them with digital tools, expanding their reach to more customers and ensuring fair, consistent earnings based on transparent pricing. It formalizes their work and increases their income potential.',
+                    chartLabels: ['Income Potential', 'Customer Reach', 'Efficiency'],
+                    chartData: [85, 90, 75]
+                },
+                households: {
+                    title: 'For Households & Industries',
+                    description: 'Our platform simplifies recycling, reduces landfill contributions, and provides monetary returns for waste. It makes being environmentally responsible both easy and rewarding.',
+                    chartLabels: ['Waste Diverted', 'Convenience', 'Monetary Return'],
+                    chartData: [80, 95, 70]
+                },
+                recyclers: {
+                    title: 'For Recyclers',
+                    description: 'We ensure a steady and reliable supply of verified, clean scrap. This improves operational efficiency, reduces sourcing costs, and helps meet production targets.',
+                    chartLabels: ['Supply Reliability', 'Scrap Quality', 'Efficiency'],
+                    chartData: [88, 82, 90]
+                },
+                authorities: {
+                    title: 'For Authorities',
+                    description: 'BinGo enables better tracking and planning for efficient city-wide waste management. The data generated supports circular economy initiatives and policy-making.',
+                    chartLabels: ['Data for Planning', 'Traceability', 'Landfill Reduction'],
+                    chartData: [92, 95, 85]
+                }
+            };
+
+            const impactCtx = document.getElementById('impactChart').getContext('2d');
+            const impactChart = new Chart(impactCtx, {
+                type: 'bar',
+                data: {
+                    labels: impactData.collectors.chartLabels,
+                    datasets: [{
+                        label: 'Impact Score (out of 100)',
+                        data: impactData.collectors.chartData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                        borderColor: 'rgba(5, 150, 105, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+
+            const impactFilterBtns = document.querySelectorAll('.impact-filter-btn');
+            const impactTextContent = document.getElementById('impact-text-content');
+            impactFilterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const filter = btn.dataset.filter;
+                    const data = impactData[filter];
+
+                    impactFilterBtns.forEach(b => {
+                        b.classList.remove('bg-emerald-600', 'text-white');
+                        b.classList.add('bg-gray-200', 'text-gray-700');
+                    });
+                    btn.classList.add('bg-emerald-600', 'text-white');
+                    btn.classList.remove('bg-gray-200', 'text-gray-700');
+                    
+                    impactTextContent.innerHTML = `<h3 class="text-2xl font-bold mb-4 text-gray-800">${data.title}</h3><p>${data.description}</p>`;
+                    
+                    impactChart.data.labels = data.chartLabels;
+                    impactChart.data.datasets[0].data = data.chartData;
+                    impactChart.update();
+                });
+            });
+
+            // Roadmap Chart
+            const roadmapCtx = document.getElementById('roadmapChart').getContext('2d');
+            new Chart(roadmapCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Finalize Design & Core Auth', 'Pricing Logic & Dashboards', 'Payment & Reporting', 'Beta Launch & Feedback', 'Final Testing & Deployment', 'Post-Launch & Expansion'],
+                    datasets: [{
+                        label: 'Month',
+                        data: [
+                            [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6]
+                        ],
+                        backgroundColor: [
+                            'rgba(16, 185, 129, 0.6)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(5, 150, 105, 0.7)',
+                            'rgba(5, 150, 105, 0.8)',
+                            'rgba(4, 120, 87, 0.8)'
+                        ],
+                        borderWidth: 1,
+                        barPercentage: 0.5,
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Month ${context.raw[0] + 1}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            min: 0,
+                            max: 7,
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    return 'Month ' + value;
+                                }
+                            }
+                        },
+                        y: {
+                           grid: {
+                                display: false
+                           }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
