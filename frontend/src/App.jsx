@@ -1,41 +1,63 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import Schedule from "./pages/Schedule";
 import Track from "./pages/Track";
-import Alert from "./pages/Alert";
+import Alerts from "./pages/Alerts";
 import Profile from "./pages/Profile";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import NavBar from "./components/NavBar";
-import TopBar from "./components/TopBar";
 
-function App() {
-  const isLoggedIn = true; // replace with auth logic
-
-  if (!isLoggedIn) {
-    return <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="*" element={<Navigate to="/login" />} />
-    </Routes>
-  }
-
+export default function App() {
   return (
-    <div className="flex flex-col h-screen">
-      <TopBar userName="Vasundhara Pragati" />
-      <div className="flex-1 overflow-auto">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/track" element={<Track />} />
-          <Route path="/alerts" element={<Alert />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </div>
-      <NavBar />
-    </div>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Navigate to="/auth" replace />} />
+        <Route path="/auth" element={<Auth />} />
+
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/schedule"
+          element={
+            <ProtectedRoute>
+              <Schedule />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/track"
+          element={
+            <ProtectedRoute>
+              <Track />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/alerts"
+          element={
+            <ProtectedRoute>
+              <Alerts />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/auth" replace />} />
+      </Routes>
+    </AuthProvider>
   );
 }
-
-export default App;

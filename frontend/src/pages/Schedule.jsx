@@ -1,98 +1,102 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import TopBar from "../components/TopBar";
+import BottomNav from "../components/BottomNav";
+import { storage } from "../utils/storage";
 
-function Schedule() {
-  const [wasteType, setWasteType] = useState("");
-  const [weight, setWeight] = useState("");
-  const [address, setAddress] = useState("");
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
-  const [instructions, setInstructions] = useState("");
+const WASTE_TYPES = ["Metal", "Glass", "Paper", "Plastic", "E-Waste", "Organic"];
 
-  const handleSubmit = (e) => {
+export default function Schedule() {
+  const [form, setForm] = useState({
+    type: "",
+    weight: "",
+    address: "",
+    date: "",
+    time: "",
+    notes: "",
+  });
+  const [err, setErr] = useState("");
+  const nav = useNavigate();
+
+  const submit = (e) => {
     e.preventDefault();
-    alert(`Pickup Scheduled!\n
-      Waste Type: ${wasteType}\n
-      Weight: ${weight} kg\n
-      Address: ${address}\n
-      Date: ${date}\n
-      Time: ${time}\n
-      Instructions: ${instructions}`);
-    // Here you will later send data to backend API
+    setErr("");
+    if (!form.type) return setErr("Please select a waste type.");
+    if (!form.weight || Number(form.weight) <= 0) return setErr("Enter a valid weight (kg).");
+    if (!form.address.trim()) return setErr("Please enter address.");
+    if (!form.date) return setErr("Pick a date.");
+    if (!form.time) return setErr("Pick a time.");
+
+    const pickup = { id: crypto.randomUUID(), ...form, status: "Scheduled", createdAt: new Date().toISOString() };
+    storage.addPickup(pickup);
+
+    storage.addAlert({
+      id: crypto.randomUUID(),
+      title: "Collector Assigned",
+      body: `A verified collector has been assigned to your ${pickup.type.toLowerCase()} waste pickup.`,
+      tag: "status update",
+      at: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    });
+
+    nav("/alerts");
   };
 
   return (
-    <div className="p-4 space-y-4">
-      <h2 className="font-bold text-lg">Schedule Pickup</h2>
-      <form onSubmit={handleSubmit} className="space-y-2">
-        <div>
-          <label>Waste Type</label>
-          <input
-            type="text"
-            value={wasteType}
-            onChange={(e) => setWasteType(e.target.value)}
-            className="w-full border p-2 rounded"
-            placeholder="Plastic, Metal, Paper..."
-            required
-          />
+    <div className="app">
+      <TopBar />
+      <div className="content container">
+        <div style={{ display:"flex", alignItems:"center", gap:10, margin:"8px 0 14px" }}>
+          <div style={{ fontSize:22 }}>🧱</div>
+          <h2 style={{ margin:0 }}>Schedule Pickup</h2>
         </div>
-        <div>
-          <label>Weight (kg)</label>
-          <input
-            type="number"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
-            className="w-full border p-2 rounded"
-            required
-          />
-        </div>
-        <div>
-          <label>Pickup Address</label>
-          <input
-            type="text"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-            className="w-full border p-2 rounded"
-            placeholder="Enter full address"
-            required
-          />
-        </div>
-        <div className="flex gap-2">
-          <div className="flex-1">
-            <label>Date</label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="w-full border p-2 rounded"
-              required
-            />
+
+        <form className="card" onSubmit={submit} style={{ display:"grid", gap:12 }}>
+          <div style={{ display:"grid", gap:12, gridTemplateColumns:"1fr 1fr" }}>
+            <div>
+              <div className="label">Waste Type</div>
+              <select className="select" value={form.type} onChange={(e)=>setForm({...form, type:e.target.value})}>
+                <option value="">Select waste type</option>
+                {WASTE_TYPES.map(t=> <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div>
+              <div className="label">Weight (kg)</div>
+              <input className="input" placeholder="Enter weight in kg" value={form.weight}
+                     onChange={(e)=>setForm({...form, weight:e.target.value.replace(/[^\d.]/g,"")})}/>
+            </div>
           </div>
-          <div className="flex-1">
-            <label>Time</label>
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="w-full border p-2 rounded"
-              required
-            />
+
+          <div>
+            <div className="label">Pickup Address</div>
+            <input className="input" placeholder="Enter complete pickup address" value={form.address}
+                   onChange={(e)=>setForm({...form, address:e.target.value})}/>
           </div>
-        </div>
-        <div>
-          <label>Special Instructions</label>
-          <textarea
-            value={instructions}
-            onChange={(e) => setInstructions(e.target.value)}
-            className="w-full border p-2 rounded"
-            placeholder="Any instructions for the collector"
-          ></textarea>
-        </div>
-        <button type="submit" className="bg-green-600 text-white p-2 rounded w-full">
-          Schedule Pickup
-        </button>
-      </form>
+
+          <div style={{ display:"grid", gap:12, gridTemplateColumns:"1fr 1fr" }}>
+            <div>
+              <div className="label">Pickup Date</div>
+              <input className="input" type="date" value={form.date}
+                     onChange={(e)=>setForm({...form, date:e.target.value})}/>
+            </div>
+            <div>
+              <div className="label">Pickup Time</div>
+              <input className="input" type="time" value={form.time}
+                     onChange={(e)=>setForm({...form, time:e.target.value})}/>
+            </div>
+          </div>
+
+          <div>
+            <div className="label">Additional Notes (Optional)</div>
+            <textarea className="textarea" placeholder="Any special instructions for the collector"
+                      value={form.notes} onChange={(e)=>setForm({...form, notes:e.target.value})}/>
+          </div>
+
+          {err && <div style={{ color:"#b42318", fontWeight:700 }}>{err}</div>}
+
+          <button className="btn">Schedule Pickup</button>
+        </form>
+      </div>
+      <BottomNav />
     </div>
   );
 }
-
-export default Schedule;

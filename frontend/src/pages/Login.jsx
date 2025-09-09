@@ -1,47 +1,57 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { storage } from "../utils/storage";
 
-function Login() {
+export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (email === "vasundharapragati30@gmail.com" && password === "123456") {
-      navigate("/"); // Navigate to Home on success
+
+    const user = storage.getUser();
+    if (user && user.email === email && user.password === password) {
+      storage.setAuth(true);
+      navigate("/home");
     } else {
-      alert("Invalid credentials! Please check email or password.");
+      setError("Invalid email or password");
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-green-50 p-4">
-      <h1 className="text-2xl font-bold mb-4">BinGo Login</h1>
-      <form onSubmit={handleLogin} className="w-full max-w-sm space-y-4 bg-white p-4 rounded shadow">
+    <div className="app container" style={{ display: "grid", gap: 20, padding: 20 }}>
+      <h2 style={{ marginBottom: 10 }}>🔐 Login</h2>
+      <form onSubmit={handleLogin} style={{ display: "grid", gap: 12 }}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-2 rounded"
           required
+          className="input"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-2 rounded"
           required
+          className="input"
         />
-        <button type="submit" className="w-full bg-green-600 text-white p-2 rounded">Login</button>
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        <button type="submit" className="btn">Login</button>
       </form>
-      <p className="mt-2">
-        Don't have an account? <span onClick={() => navigate("/register")} className="text-green-600 cursor-pointer">Sign Up</span>
+      <p>
+        Don’t have an account?{" "}
+        <span
+          style={{ color: "#2563eb", cursor: "pointer" }}
+          onClick={() => navigate("/register")}
+        >
+          Sign Up
+        </span>
       </p>
     </div>
   );
 }
-
-export default Login;

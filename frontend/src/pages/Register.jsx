@@ -1,63 +1,67 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { storage } from "../utils/storage";
 
-function Register() {
+export default function Register() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [city, setCity] = useState("");
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
 
   const handleRegister = (e) => {
     e.preventDefault();
-    alert(`Account Created!\nName: ${name}\nEmail: ${email}\nCity: ${city}`);
-    navigate("/login"); // Redirect to login
-    // Later, send this data to backend API
+
+    if (!name || !email || !password) {
+      setError("All fields are required");
+      return;
+    }
+
+    storage.setUser({ name, email, password });
+    storage.setAuth(true);
+    navigate("/home");
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-screen bg-green-50 p-4">
-      <h1 className="text-2xl font-bold mb-4">BinGo Sign Up</h1>
-      <form onSubmit={handleRegister} className="w-full max-w-sm space-y-4 bg-white p-4 rounded shadow">
+    <div className="app container" style={{ display: "grid", gap: 20, padding: 20 }}>
+      <h2 style={{ marginBottom: 10 }}>📝 Sign Up</h2>
+      <form onSubmit={handleRegister} style={{ display: "grid", gap: 12 }}>
         <input
           type="text"
           placeholder="Full Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="w-full border p-2 rounded"
           required
+          className="input"
         />
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full border p-2 rounded"
           required
+          className="input"
         />
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full border p-2 rounded"
           required
+          className="input"
         />
-        <input
-          type="text"
-          placeholder="City"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="w-full border p-2 rounded"
-          required
-        />
-        <button type="submit" className="w-full bg-green-600 text-white p-2 rounded">Sign Up</button>
+        {error && <div style={{ color: "red" }}>{error}</div>}
+        <button type="submit" className="btn">Sign Up</button>
       </form>
-      <p className="mt-2">
-        Already have an account? <span onClick={() => navigate("/login")} className="text-green-600 cursor-pointer">Login</span>
+      <p>
+        Already have an account?{" "}
+        <span
+          style={{ color: "#2563eb", cursor: "pointer" }}
+          onClick={() => navigate("/")}
+        >
+          Login
+        </span>
       </p>
     </div>
   );
 }
-
-export default Register;
